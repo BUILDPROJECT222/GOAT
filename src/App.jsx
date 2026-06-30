@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
-import { useGameEngine } from './engine/useGameEngine'
+import { useGameClient } from './engine/useGameClient'
 import { CONFIG, TEAM_NAMES } from './config'
 import { setSoundEnabled, unlockSound } from './engine/sound'
 import TopBar from './components/TopBar'
@@ -10,16 +10,13 @@ import BuyPopups from './components/BuyPopups'
 import SideTrades from './components/SideTrades'
 import InfoModal from './components/InfoModal'
 
-// Game parameters are fixed (not exposed to viewers).
-const THRESHOLD = 5 // ◎ for whale popup/shake
-
 const fmtClock = (s) => `${Math.floor(Math.max(0, s) / 60)}:${String(Math.max(0, s) % 60).padStart(2, '0')}`
 
 export default function App() {
   const [sound, setSound] = useState(true)
   const [info, setInfo] = useState(false)
 
-  const g = useGameEngine({ threshold: THRESHOLD, running: true })
+  const g = useGameClient()
 
   // Unlock audio on the first user interaction (browser autoplay policy).
   useEffect(() => {

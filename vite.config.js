@@ -3,5 +3,10 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  server: { host: true, port: 5173 },
+  server: {
+    host: true,
+    port: 5173,
+    // Dev: run `npm run server` (backend on 3001) alongside `npm run dev`.
+    proxy: { '/ws': { target: 'ws://localhost:3001', ws: true } },
+  },
 })
