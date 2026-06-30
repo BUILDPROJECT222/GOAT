@@ -5,7 +5,7 @@ import express from 'express'
 import { WebSocketServer } from 'ws'
 import { createEngine } from './engine.js'
 import { createHeliusFeed, createSimulatedFeed } from './feed.js'
-import { loadState, saveState, storeEnabled } from './store.js'
+import { loadState, saveState, storeEnabled, initStore } from './store.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.join(__dirname, '..', 'dist')
@@ -43,11 +43,17 @@ wss.on('connection', (ws) => {
 
 async function boot() {
   if (storeEnabled()) {
-    const snap = await loadState()
-    if (snap) { engine.load(snap); console.log('[boot] restored state from Supabase') }
-    setInterval(() => saveState(engine.snapshot()), 10000) // periodic snapshot
+    try {
+      await initStore()
+      const snap = await loadState()
+      if (snap) { engine.load(snap); console.log('[boot] restored state from Postgres') }
+      setInterval(() => saveState(engine.snapshot()), 10000) // periodic snapshot
+      console.log('[boot] Postgres persistence enabled')
+    } catch (e) {
+      console.warn('[boot] Postgres init failed — in-memory only:', e.message)
+    }
   } else {
-    console.log('[boot] Supabase not configured — in-memory state only')
+    console.log('[boot] no DATABASE_URL — in-memory state only')
   }
 
   if (HELIUS) {

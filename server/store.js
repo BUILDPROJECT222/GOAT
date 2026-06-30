@@ -1,30 +1,42 @@
-// Supabase persistence (optional). If SUPABASE_URL / SUPABASE_SERVICE_KEY are
-// not set, the server runs in-memory only (still shared + refresh-proof; just
-// doesn't survive a server restart).
-import { createClient } from '@supabase/supabase-js'
+// Postgres persistence (Railway). If DATABASE_URL is not set, the server runs
+// in-memory only (still shared + refresh-proof; just doesn't survive a restart).
+import pg from 'pg'
 
-const url = process.env.SUPABASE_URL
-const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_KEY
-const ROW_ID = 1
+const url = process.env.DATABASE_URL
+let pool = null
+if (url) {
+  const internal = url.includes('.railway.internal')
+  pool = new pg.Pool({
+    connectionString: url,
+    ssl: internal ? false : { rejectUnauthorized: false },
+    max: 4,
+  })
+}
 
-let sb = null
-if (url && key) sb = createClient(url, key, { auth: { persistSession: false } })
+export const storeEnabled = () => !!pool
 
-export const storeEnabled = () => !!sb
+export async function initStore() {
+  if (!pool) return
+  await pool.query(
+    'create table if not exists game_state (id int primary key, data jsonb, updated_at timestamptz default now())',
+  )
+}
 
 export async function loadState() {
-  if (!sb) return null
+  if (!pool) return null
   try {
-    const { data, error } = await sb.from('game_state').select('data').eq('id', ROW_ID).maybeSingle()
-    if (error) { console.warn('[store] load:', error.message); return null }
-    return data?.data || null
-  } catch (e) { console.warn('[store] load error:', e.message); return null }
+    const r = await pool.query('select data from game_state where id = 1')
+    return r.rows[0]?.data || null
+  } catch (e) { console.warn('[store] load:', e.message); return null }
 }
 
 export async function saveState(snapshot) {
-  if (!sb) return
+  if (!pool) return
   try {
-    const { error } = await sb.from('game_state').upsert({ id: ROW_ID, data: snapshot, updated_at: new Date().toISOString() })
-    if (error) console.warn('[store] save:', error.message)
-  } catch (e) { console.warn('[store] save error:', e.message) }
+    await pool.query(
+      'insert into game_state (id, data, updated_at) values (1, $1::jsonb, now()) ' +
+      'on conflict (id) do update set data = excluded.data, updated_at = now()',
+      [JSON.stringify(snapshot)],
+    )
+  } catch (e) { console.warn('[store] save:', e.message) }
 }
