@@ -3,12 +3,11 @@ import { SolIcon } from './icons'
 
 const short = (w) => (w && w.length > 8 ? `${w.slice(0, 4)}..${w.slice(-4)}` : w)
 
-// Panel live trades untuk satu sisi (CA-nya sendiri), di sudut bawah arena.
-export default memo(function SideTrades({ side, trades }) {
-  // Buy-only (feed memang hanya emit buy) & minimal 1 SOL.
-  const list = trades.filter((t) => t.side === side && t.solAmount >= 1).slice(0, 8)
+// Live trades for one slot (its own fighter's CA), in a bottom corner.
+export default memo(function SideTrades({ slot, color, trades }) {
+  const list = trades.filter((t) => t.slot === slot && t.solAmount >= 1).slice(0, 8)
   return (
-    <div className={`side-trades ${side}`}>
+    <div className={`side-trades ${slot}`} style={{ '--fc': color || '#888' }}>
       <div className="st-title">LIVE TRADES</div>
       {list.length === 0 && <div className="st-empty">waiting for buys…</div>}
       {list.map((t) => (

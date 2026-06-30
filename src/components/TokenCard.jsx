@@ -4,12 +4,12 @@ import { fmtUsd, fmtPrice } from '../engine/tokenInfo'
 const short = (m) => (m && m.length > 8 ? `${m.slice(0, 4)}..${m.slice(-4)}` : m)
 
 // Kartu detail token di sudut arena (gambar, nama, market cap, harga, dll).
-export default function TokenCard({ side, mint }) {
+export default function TokenCard({ slot, mint, color }) {
   const { data, error } = useTokenInfo(mint)
   const chg = data?.change24
 
   return (
-    <div className={`token-card ${side}`}>
+    <div className={`token-card ${slot}`} style={{ '--fc': color || '#888' }}>
       <div className="tc-head">
         {data?.image
           ? <img className="tc-img" src={data.image} alt="" />

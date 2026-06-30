@@ -13,35 +13,44 @@ let _seq = 0
 const uid = () => `${++_seq}-${Math.random().toString(36).slice(2, 8)}`
 
 /**
- * Connects to the authoritative server over WebSocket and exposes the same
- * shape the UI expects. Persistent state (HP, scores, round, wins, KO,
- * intermission, status) comes from the server; transient reactions (punch,
+ * Connects to the authoritative GOAT-Gauntlet server over WebSocket. Persistent
+ * state (the current match's two fighters, HP/scores per slot, stage, GOAT,
+ * queue, KO, intermission) comes from the server; transient reactions (punch,
  * damage numbers, popups, shake, sfx) are derived locally from trade events.
+ * Trades carry `slot` ('left'|'right') assigned by the server.
  */
 export function useGameClient() {
-  const [hp, setHp] = useState({ ansem: 1000, pumpfun: 1000 })
-  const [scores, setScores] = useState({ ansem: 0, pumpfun: 0 })
-  const [round, setRound] = useState({ n: 1, winner: null })
-  const [wins, setWins] = useState({ ansem: 0, pumpfun: 0 })
-  const [koSide, setKoSide] = useState(null)
+  const [stage, setStage] = useState('round1')
+  const [cycle, setCycle] = useState(1)
+  const [left, setLeft] = useState(null)
+  const [right, setRight] = useState(null)
+  const [goat, setGoat] = useState(null)
+  const [queue, setQueue] = useState([])
+  const [hp, setHp] = useState({ left: 1000, right: 1000 })
+  const [scores, setScores] = useState({ left: 0, right: 0 })
+  const [matchWinner, setMatchWinner] = useState(null)
   const [nextIn, setNextIn] = useState(null)
   const [status, setStatus] = useState('connecting')
   const [maxHp, setMaxHp] = useState(1000)
   const [trades, setTrades] = useState([])
   const [popups, setPopups] = useState([])
   const [damages, setDamages] = useState([])
-  const [punch, setPunch] = useState({ ansem: 0, pumpfun: 0 })
+  const [punch, setPunch] = useState({ left: 0, right: 0 })
   const [shake, setShake] = useState(0)
   const [shakeId, setShakeId] = useState(0)
   const timers = useRef([])
   const prevKo = useRef(null)
 
   const applyState = useCallback((s) => {
+    if (s.stage) setStage(s.stage)
+    if (s.cycle != null) setCycle(s.cycle)
+    setLeft(s.left ?? null)
+    setRight(s.right ?? null)
+    setGoat(s.goat ?? null)
+    if (Array.isArray(s.queue)) setQueue(s.queue)
     if (s.hp) setHp(s.hp)
     if (s.scores) setScores(s.scores)
-    if (s.round) setRound(s.round)
-    if (s.wins) setWins(s.wins)
-    setKoSide(s.koSide ?? null)
+    setMatchWinner(s.matchWinner ?? null)
     setNextIn(s.nextIn ?? null)
     if (s.status) setStatus(s.status)
     if (s.maxHp) setMaxHp(s.maxHp)
@@ -49,16 +58,17 @@ export function useGameClient() {
 
   const onTrade = useCallback((trade) => {
     setTrades((prev) => [trade, ...prev].slice(0, 40))
-    if (trade.kind !== 'buy') return
+    const slot = trade.slot
+    if (trade.kind !== 'buy' || (slot !== 'left' && slot !== 'right')) return
 
     // Attacker punches.
-    setPunch((p) => ({ ...p, [trade.side]: p[trade.side] + 1 }))
+    setPunch((p) => ({ ...p, [slot]: p[slot] + 1 }))
 
     // Floating damage number on the opponent.
-    const opp = trade.side === 'ansem' ? 'pumpfun' : 'ansem'
+    const opp = slot === 'left' ? 'right' : 'left'
     const did = uid()
     const dx = Math.round(Math.random() * 44 - 22)
-    setDamages((prev) => [...prev.slice(-12), { id: did, side: opp, amount: trade.solAmount, dx }])
+    setDamages((prev) => [...prev.slice(-12), { id: did, slot: opp, amount: trade.solAmount, dx }])
     const t1 = setTimeout(() => setDamages((prev) => prev.filter((d) => d.id !== did)), 1000)
     timers.current.push(t1)
 
@@ -70,7 +80,7 @@ export function useGameClient() {
     if (trade.solAmount >= POPUP_THRESHOLD) {
       const tier = tierOf(trade.solAmount)
       const pid = uid()
-      setPopups((prev) => [...prev.slice(-5), { ...trade, tier: tier.name, label: tier.label, pid }])
+      setPopups((prev) => [...prev.slice(-5), { ...trade, slot, tier: tier.name, label: tier.label, pid }])
       const t2 = setTimeout(() => setPopups((prev) => prev.filter((p) => p.pid !== pid)), 2600)
       timers.current.push(t2)
       if (tier.shake) {
@@ -81,8 +91,8 @@ export function useGameClient() {
     }
   }, [])
 
-  // KO sound when a new KO occurs.
-  useEffect(() => { if (koSide && koSide !== prevKo.current) playKO(); prevKo.current = koSide }, [koSide])
+  // KO sound when a match is decided.
+  useEffect(() => { if (matchWinner && matchWinner !== prevKo.current) playKO(); prevKo.current = matchWinner }, [matchWinner])
 
   // WebSocket connection (auto-reconnect).
   useEffect(() => {
@@ -107,5 +117,5 @@ export function useGameClient() {
 
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
-  return { trades, popups, damages, scores, hp, maxHp, round, wins, koSide, nextIn, punch, shake, shakeId, status }
+  return { stage, cycle, left, right, goat, queue, hp, scores, maxHp, matchWinner, nextIn, status, trades, popups, damages, punch, shake, shakeId }
 }

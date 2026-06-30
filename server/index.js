@@ -32,6 +32,7 @@ const engine = createEngine({
   onTrade: (trade) => broadcast({ type: 'trade', trade }),
   onChange: () => { stateDirty = true },
   save: (snap) => saveState(snap),
+  intermission: Number(process.env.INTERMISSION) || 300,
   onKO: (ko) => {
     // Every KO is a reward event. Airdrop wiring lands in a later phase; log for now.
     console.log(`[KO] ${ko.stage} cycle ${ko.cycle}: ${ko.winnerName} wins (${ko.winnerMint})`)

@@ -37,34 +37,21 @@ body {
 
 .team-panel { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .tp-meta { display: flex; flex-direction: column; line-height: 1.12; }
-.team-panel.ansem .tp-meta { align-items: flex-end; }
-.team-panel.pumpfun .tp-meta { align-items: flex-start; }
-.tp-name { font-size: 24px; font-weight: 900; letter-spacing: 1.5px; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .6); }
+.team-panel.left .tp-meta { align-items: flex-start; }
+.team-panel.right .tp-meta { align-items: flex-end; }
+.tp-name { font-size: 24px; font-weight: 900; letter-spacing: 1.5px; color: var(--fc); text-shadow: 0 2px 10px rgba(0, 0, 0, .6); }
 .tp-vol { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #aeb6c8; }
-.tp-score {
-  min-width: 56px; height: 50px; padding: 0 12px; border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 30px; font-weight: 900; color: #fff; font-variant-numeric: tabular-nums;
-  border: 1px solid rgba(255, 255, 255, .22);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 6px 18px rgba(0, 0, 0, .5);
-}
-.team-panel.ansem .tp-score {
-  background: linear-gradient(160deg, #4ade80, var(--ansem-d));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 22px rgba(34, 197, 94, .55);
-}
-.team-panel.pumpfun .tp-score {
-  background: linear-gradient(160deg, #a855f7, var(--pumpfun-d));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 22px rgba(124, 58, 237, .6);
-}
 
 .center-panel { display: flex; flex-direction: column; align-items: center; gap: 1px; }
 .cp-live { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; letter-spacing: 3px; color: #9aa3b5; }
 .cp-dot { width: 7px; height: 7px; border-radius: 50%; background: #ff4d4d; box-shadow: 0 0 9px #ff4d4d; animation: pulse 1.1s ease-in-out infinite; }
 .cp-timer {
-  font-size: 38px; font-weight: 900; line-height: 1.05; letter-spacing: 1px; font-variant-numeric: tabular-nums;
+  font-size: 30px; font-weight: 900; line-height: 1.05; letter-spacing: 2px;
   color: #fff; text-shadow: 0 0 22px rgba(124, 58, 237, .55), 0 0 26px rgba(34, 197, 94, .35);
 }
-.cp-round { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #6b7280; }
+.cp-goat { font-size: 12px; font-weight: 800; letter-spacing: .3px; color: #c9d2e3; margin-top: 2px; }
+.cp-goat b { color: var(--fc); }
+.cp-next { color: #8b93a7; font-weight: 700; }
 
 /* ---------------- Arena ---------------- */
 .arena {
@@ -82,8 +69,9 @@ body {
   font-size: 40px; z-index: 3; filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .5));
 }
 .fighter { position: absolute; bottom: 8%; transform: translateX(-50%); transform-origin: bottom center; }
-.fighter.ansem { left: 62%; }   /* ANSEM now on the right */
-.fighter.pumpfun { left: 38%; } /* TJR now on the left */
+.fighter.left { left: 38%; }
+.fighter.right { left: 62%; }
+.fighter-facing { position: absolute; inset: 0; }
 .fighter-sprite {
   width: 100%; height: 100%;
   background-repeat: no-repeat; background-position: 0 0;
@@ -111,18 +99,17 @@ body {
   0% { transform: rotate(0) translateY(0); filter: drop-shadow(0 10px 12px rgba(0, 0, 0, .55)) brightness(1); }
   100% { transform: rotate(82deg) translateY(14px); filter: grayscale(1) brightness(.55); opacity: .9; }
 }
-.fighter-hud { position: absolute; top: -48px; left: 50%; transform: translateX(-50%); width: 158px; }
-.hp-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
-.hp-num { font-weight: 900; font-size: 16px; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
+.fighter-hud { position: absolute; top: -56px; left: 50%; transform: translateX(-50%); width: 168px; }
+.hp-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; gap: 6px; }
+.hp-name { font-weight: 900; font-size: 15px; color: var(--fc); letter-spacing: .5px; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hp-num { font-weight: 900; font-size: 13px; text-align: center; margin-top: 2px; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
 .hp-max { font-size: 10px; color: #c4ccda; font-weight: 700; }
-.hp-sol { font-weight: 800; font-size: 11px; color: var(--gold); text-shadow: 0 1px 3px rgba(0, 0, 0, .9); }
+.hp-sol { font-weight: 800; font-size: 11px; color: var(--gold); text-shadow: 0 1px 3px rgba(0, 0, 0, .9); white-space: nowrap; }
 .hp-bar {
   height: 11px; background: rgba(0, 0, 0, .6); border: 1.5px solid rgba(255, 255, 255, .45);
   border-radius: 6px; overflow: hidden; box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
 }
-.hp-fill { height: 100%; border-radius: 5px; transition: width .35s ease-out; }
-.fighter.ansem .hp-fill { background: linear-gradient(90deg, #4ade80, var(--ansem)); }
-.fighter.pumpfun .hp-fill { background: linear-gradient(90deg, #a855f7, var(--pumpfun)); }
+.hp-fill { height: 100%; border-radius: 5px; transition: width .35s ease-out; background: var(--fc); }
 .hp-fill.low { background: linear-gradient(90deg, #f87171, #ef4444) !important; animation: pulse .7s ease-in-out infinite; }
 
 /* ---------------- Token cards ---------------- */
@@ -131,8 +118,8 @@ body {
   background: rgba(5, 8, 16, .85); border: 1.5px solid #29324a; border-radius: 14px;
   padding: 10px 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, .5); backdrop-filter: blur(2px);
 }
-.token-card.ansem { right: 12px; border-color: var(--ansem); box-shadow: 0 0 18px rgba(34, 197, 94, .45); }
-.token-card.pumpfun { left: 12px; border-color: var(--pumpfun); box-shadow: 0 0 18px rgba(124, 58, 237, .45); }
+.token-card.left { left: 12px; border-color: var(--fc); box-shadow: 0 0 18px color-mix(in srgb, var(--fc) 45%, transparent); }
+.token-card.right { right: 12px; border-color: var(--fc); box-shadow: 0 0 18px color-mix(in srgb, var(--fc) 45%, transparent); }
 .tc-head { display: flex; align-items: center; gap: 8px; }
 .tc-img { width: 38px; height: 38px; border-radius: 10px; object-fit: cover; background: #1b2233; flex-shrink: 0; }
 .tc-img-ph { background: linear-gradient(135deg, #1b2233, #29324a); }
@@ -154,15 +141,14 @@ body {
 
 /* ---------------- Buy popups ---------------- */
 .popup-col { position: absolute; top: 228px; display: flex; flex-direction: column; gap: 8px; z-index: 4; }
-.popup-col.ansem { right: 4%; align-items: flex-end; }
-.popup-col.pumpfun { left: 4%; align-items: flex-start; }
+.popup-col.left { left: 4%; align-items: flex-start; }
+.popup-col.right { right: 4%; align-items: flex-end; }
 .buy-popup {
   background: rgba(5, 8, 16, .85); border: 2px solid #fff; border-radius: 12px;
   padding: 8px 14px; min-width: 150px; animation: popIn .3s ease-out;
   box-shadow: 0 6px 18px rgba(0, 0, 0, .4);
 }
-.popup-col.ansem .buy-popup { border-color: var(--ansem); }
-.popup-col.pumpfun .buy-popup { border-color: var(--pumpfun); }
+.popup-col.left .buy-popup, .popup-col.right .buy-popup { border-color: var(--fc, #fff); }
 .buy-popup.big { transform: scale(1.06); }
 .buy-popup.whale { border-width: 3px; box-shadow: 0 0 28px var(--gold); }
 .bp-top { font-size: 12px; letter-spacing: 1px; color: var(--gold); font-weight: 800; }
@@ -177,13 +163,11 @@ body {
   background: rgba(5, 8, 16, .82); border: 1.5px solid #29324a; border-radius: 12px;
   padding: 8px 10px; box-shadow: 0 4px 16px rgba(0, 0, 0, .45);
 }
-.side-trades.ansem { right: 14px; border-color: var(--ansem); }
-.side-trades.pumpfun { left: 14px; border-color: var(--pumpfun); }
+.side-trades.left { left: 14px; border-color: var(--fc); }
+.side-trades.right { right: 14px; border-color: var(--fc); }
 .st-title { font-size: 11px; letter-spacing: 2px; text-align: center; color: var(--gold); font-weight: 800; margin-bottom: 6px; }
 .st-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; padding: 2px 0; font-family: monospace; }
-.st-amt { font-weight: 800; }
-.side-trades.ansem .st-amt { color: #86efac; }
-.side-trades.pumpfun .st-amt { color: #b794f6; }
+.st-amt { font-weight: 800; color: var(--fc); filter: brightness(1.35); }
 .st-wallet { color: #7e889c; }
 .st-empty { font-size: 12px; text-align: center; color: #6b7280; }
 
@@ -205,11 +189,9 @@ body {
 .round-banner {
   position: absolute; top: 52px; left: 50%; transform: translateX(-50%);
   z-index: 8; text-align: center; padding: 12px 34px; border-radius: 16px;
-  background: rgba(5, 8, 16, .85); border: 2px solid #fff;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, .5); animation: popIn .35s ease-out;
+  background: rgba(5, 8, 16, .9); border: 2px solid var(--fc, #fff);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .5), 0 0 36px var(--fc, transparent); animation: popIn .35s ease-out;
 }
-.round-banner.ansem { border-color: var(--ansem); box-shadow: 0 0 36px var(--ansem); }
-.round-banner.pumpfun { border-color: var(--pumpfun); box-shadow: 0 0 36px var(--pumpfun); }
 .ko-flash {
   font-size: 40px; font-weight: 900; letter-spacing: 4px; color: #ff4d4d;
   text-shadow: 0 0 18px rgba(255, 77, 77, .85); animation: koPulse .5s ease-out;
@@ -329,7 +311,8 @@ body {
   .cp-live { font-size: 8px; letter-spacing: 1.5px; gap: 4px; }
   .cp-dot { width: 6px; height: 6px; }
   .cp-timer { font-size: 19px; letter-spacing: .3px; }
-  .cp-round { font-size: 8px; letter-spacing: 1px; }
+  .cp-goat { font-size: 9px; }
+  .cp-next { display: none; }
 
   /* Floating toolbar — wrap + shrink */
   .toolbar { top: 8px; gap: 6px; max-width: 96%; flex-wrap: wrap; justify-content: center; }
@@ -339,14 +322,14 @@ body {
   .tb-icon { padding: 6px 9px; font-size: 13px; }
 
   /* Fighters — scale down + spread so they don't overlap */
-  .fighter.pumpfun { left: 28%; transform: translateX(-50%) scale(.55); }
-  .fighter.ansem   { left: 72%; transform: translateX(-50%) scale(.55); }
+  .fighter.left  { left: 28%; transform: translateX(-50%) scale(.55); }
+  .fighter.right { left: 72%; transform: translateX(-50%) scale(.55); }
   .fighter-hud { width: 150px; }
 
   /* Token cards — compact, top corners (below the wrapped toolbar) */
   .token-card { width: 44vw; max-width: 196px; top: 76px; padding: 7px 8px; border-radius: 11px; }
-  .token-card.ansem { right: 6px; }
-  .token-card.pumpfun { left: 6px; }
+  .token-card.left { left: 6px; }
+  .token-card.right { right: 6px; }
   .tc-img { width: 30px; height: 30px; border-radius: 8px; }
   .tc-name { font-size: 11.5px; }
   .tc-sym { font-size: 10px; }
@@ -360,8 +343,8 @@ body {
 
   /* Buy popups — smaller, mid-height */
   .popup-col { top: 40%; gap: 6px; }
-  .popup-col.ansem { right: 2%; }
-  .popup-col.pumpfun { left: 2%; }
+  .popup-col.left { left: 2%; }
+  .popup-col.right { right: 2%; }
   .buy-popup { min-width: 108px; padding: 6px 10px; border-radius: 10px; }
   .bp-top { font-size: 10px; }
   .bp-amt { font-size: 17px; }
@@ -369,8 +352,8 @@ body {
 
   /* Live trades — compact, fewer rows, bottom corners */
   .side-trades { width: 41vw; max-width: 184px; bottom: 8px; padding: 6px 8px; border-radius: 10px; }
-  .side-trades.ansem { right: 8px; }
-  .side-trades.pumpfun { left: 8px; }
+  .side-trades.left { left: 8px; }
+  .side-trades.right { right: 8px; }
   .st-title { font-size: 9px; letter-spacing: 1px; margin-bottom: 4px; }
   .st-row { font-size: 10.5px; padding: 1px 0; }
   .st-row:nth-child(n+6) { display: none; } /* keep ~4 rows so fighters stay visible */
@@ -389,8 +372,8 @@ body {
 
 /* Extra-tight phones */
 @media (max-width: 400px) {
-  .fighter.pumpfun { left: 25%; transform: translateX(-50%) scale(.46); }
-  .fighter.ansem   { left: 75%; transform: translateX(-50%) scale(.46); }
+  .fighter.left  { left: 25%; transform: translateX(-50%) scale(.46); }
+  .fighter.right { left: 75%; transform: translateX(-50%) scale(.46); }
   .token-card { top: 72px; }
   .tp-name { font-size: 13px; }
   .cp-timer { font-size: 17px; }
@@ -398,7 +381,6 @@ body {
 
 /* Short / landscape viewports — keep fighters inside the arena height */
 @media (max-height: 460px) {
-  .fighter.pumpfun { transform: translateX(-50%) scale(.42); }
-  .fighter.ansem   { transform: translateX(-50%) scale(.42); }
+  .fighter.left, .fighter.right { transform: translateX(-50%) scale(.42); }
   .token-card { top: 44px; }
 }

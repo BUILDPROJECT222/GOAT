@@ -10,7 +10,7 @@
 //     with 3 fighters and scales to N via the queue.
 import { fighter, mintToId, INITIAL_GOAT, INITIAL_QUEUE } from './roster.js'
 
-const MAX_HP = 1000
+const MAX_HP = Number(process.env.MAX_HP) || 1000 // override for quick local testing
 
 export function createEngine({ onTrade, onChange, onKO, save, intermission = 300 } = {}) {
   const INTERMISSION = intermission

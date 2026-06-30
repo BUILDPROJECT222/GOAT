@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
 import { useGameClient } from './engine/useGameClient'
-import { CONFIG, TEAM_NAMES } from './config'
 import { setSoundEnabled, unlockSound } from './engine/sound'
 import TopBar from './components/TopBar'
 import Toolbar from './components/Toolbar'
@@ -43,45 +42,52 @@ export default function App() {
     }
   }, [g.shakeId]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const winner = g.matchWinner ? g[g.matchWinner] : null
+  const isFinal = g.stage === 'final'
+
   return (
     <div className="app">
-      <TopBar wins={g.wins} round={g.round} scores={g.scores} />
+      <TopBar left={g.left} right={g.right} scores={g.scores} stage={g.stage} cycle={g.cycle} goat={g.goat} queue={g.queue} />
 
       <div className="arena" ref={arenaRef}>
         <Toolbar status={g.status} sound={sound} onToggleSound={toggleSound} onInfo={() => setInfo(true)} />
 
-        {/* Field: fighters fixed in place */}
+        {/* Field: the two fighters in the current match */}
         <div className="ground">
-          <Fighter side="ansem" score={g.scores.ansem} hp={g.hp.ansem} maxHp={g.maxHp}
-            damages={g.damages} ko={g.koSide === 'ansem'} punchSeq={g.punch.ansem} />
-          <Fighter side="pumpfun" score={g.scores.pumpfun} hp={g.hp.pumpfun} maxHp={g.maxHp}
-            damages={g.damages} ko={g.koSide === 'pumpfun'} punchSeq={g.punch.pumpfun} />
+          {g.left && (
+            <Fighter slot="left" fighter={g.left} score={g.scores.left} hp={g.hp.left} maxHp={g.maxHp}
+              damages={g.damages} ko={g.matchWinner === 'right'} punchSeq={g.punch.left} />
+          )}
+          {g.right && (
+            <Fighter slot="right" fighter={g.right} score={g.scores.right} hp={g.hp.right} maxHp={g.maxHp}
+              damages={g.damages} ko={g.matchWinner === 'left'} punchSeq={g.punch.right} />
+          )}
         </div>
 
-        {/* Token info cards per CA in the corners */}
-        <TokenCard side="ansem" mint={CONFIG.ansemMint} />
-        <TokenCard side="pumpfun" mint={CONFIG.pumpfunMint} />
+        {/* Token cards per slot */}
+        {g.left && <TokenCard slot="left" mint={g.left.mint} color={g.left.color} />}
+        {g.right && <TokenCard slot="right" mint={g.right.mint} color={g.right.color} />}
 
         <BuyPopups popups={g.popups} />
 
-        {/* Per-side live trades in the bottom corners */}
-        <SideTrades side="ansem" trades={g.trades} />
-        <SideTrades side="pumpfun" trades={g.trades} />
+        {g.left && <SideTrades slot="left" color={g.left.color} trades={g.trades} />}
+        {g.right && <SideTrades slot="right" color={g.right.color} trades={g.trades} />}
 
-        {g.round.winner && (
-          <div className={`round-banner ${g.round.winner}`}>
-            {g.koSide && <div className="ko-flash">K.O!</div>}
-            <div className="rb-title">
-              {g.round.winner === 'draw' ? 'DRAW' : `${TEAM_NAMES[g.round.winner]} WINS`}
+        {winner && (
+          <div className="round-banner" style={{ '--fc': winner.color }}>
+            <div className="ko-flash">K.O!</div>
+            <div className="rb-title">{winner.name} WINS</div>
+            <div className="rb-sub">
+              {isFinal ? `🐐 ${winner.name} is the GOAT` : `advances to the 🏆 FINAL`}
             </div>
             {g.nextIn != null && (
-              <div className="rb-sub">Round {g.round.n + 1} in {fmtClock(g.nextIn)}</div>
+              <div className="rb-sub">Next in {fmtClock(g.nextIn)}</div>
             )}
           </div>
         )}
       </div>
 
-      {info && <InfoModal onClose={() => setInfo(false)} />}
+      {info && <InfoModal fighters={[g.left, g.right, g.goat]} onClose={() => setInfo(false)} />}
     </div>
   )
 }
