@@ -173,6 +173,7 @@ body {
 /* ---------------- Live trades per-sisi (sudut bawah) ---------------- */
 .side-trades {
   position: absolute; bottom: 14px; width: 200px; z-index: 4;
+  max-height: 264px; overflow: hidden; /* hard cap: never stretch past the corner */
   background: rgba(5, 8, 16, .82); border: 1.5px solid #29324a; border-radius: 12px;
   padding: 8px 10px; box-shadow: 0 4px 16px rgba(0, 0, 0, .45);
 }
