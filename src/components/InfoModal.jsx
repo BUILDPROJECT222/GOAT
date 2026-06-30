@@ -30,8 +30,7 @@ export default function InfoModal({ onClose }) {
         <ul className="modal-list">
           <li><b>1 SOL = 1 damage</b> dealt to the opposing fighter.</li>
           <li>Drop the enemy to <b>0 HP</b> for a <b>K.O.</b></li>
-          <li>When the round timer ends, the side with <b>higher HP</b> wins.</li>
-          <li>Rounds last <b>60 minutes</b>, with a <b>2-minute</b> break before the next round.</li>
+          <li><b>No timer</b> — the battle runs until one side is <b>K.O.'d</b>, then a short break before the next round.</li>
         </ul>
 
         <div className="modal-reward">
