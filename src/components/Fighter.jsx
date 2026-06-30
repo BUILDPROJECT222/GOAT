@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react'
 import { SPRITES } from '../assets/sprites'
 import { SolIcon } from './icons'
 
-const DISPLAY_H = 250 // displayed character height (px)
+const DISPLAY_H = 300 // displayed character height (px)
 const fmtDmg = (a) => (a >= 10 ? Math.round(a) : a.toFixed(1))
 
 // Sprite character (idle loop, punch when attacking) + HP bar + damage numbers

@@ -5,6 +5,6 @@ import pumpfunIdle from './pumpfun-idle-sheet.png'
 import pumpfunPunch from './pumpfun-punch-sheet.png'
 
 export const SPRITES = {
-  ansem:   { idle: { src: ansemIdle, w: 381, h: 308, frames: 2 }, punch: { src: ansemPunch, w: 381, h: 308, frames: 2 } },
-  pumpfun: { idle: { src: pumpfunIdle, w: 404, h: 308, frames: 2 }, punch: { src: pumpfunPunch, w: 404, h: 308, frames: 2 } },
+  ansem:   { idle: { src: ansemIdle, w: 362, h: 362, frames: 2 }, punch: { src: ansemPunch, w: 362, h: 362, frames: 2 } },
+  pumpfun: { idle: { src: pumpfunIdle, w: 472, h: 362, frames: 2 }, punch: { src: pumpfunPunch, w: 472, h: 362, frames: 2 } },
 }

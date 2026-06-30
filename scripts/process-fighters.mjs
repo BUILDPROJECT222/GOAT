@@ -4,23 +4,22 @@ import path from 'path'
 
 const ROOT = 'D:/PROJECT/ANSEMvsPUMPFUN'
 const OUT = path.join(ROOT, 'src/assets')
-const TARGET_H = 300
+const TARGET_IDLE_H = 285 // on-canvas height of the IDLE pose (both chars matched to this)
 const ALPHA_MIN = 24
 
 const SIDES = {
-  // flip: mirror horizontally so the fighter faces the center (enemy).
-  ansem: { idle: 'src/assets/Ansem-idle.PNG', punch: 'src/assets/ansem-punch.PNG', flip: false },
-  pumpfun: { idle: 'src/assets/Tjr-idle.PNG', punch: 'src/assets/tjr-punnch.PNG', flip: true },
+  // flip: mirror horizontally so the fighter faces center. ANSEM now on the
+  // RIGHT (faces left) -> flip. TJR now on the LEFT (faces right) -> no flip.
+  ansem: { idle: 'src/assets/Ansem-idle.PNG', punch: 'src/assets/ansem-punch.PNG', flip: true },
+  pumpfun: { idle: 'src/assets/Tjr-idle.PNG', punch: 'src/assets/tjr-punnch.PNG', flip: false },
 }
 
-// Load a 2-pose sheet -> { processed(png buffer), frames:[{left,top,w,h,anchorX} x2] }
 async function loadFrames(file) {
   const { data, info } = await sharp(path.join(ROOT, file)).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
   const { width: W, height: H, channels: C } = info
   const idx = (x, y) => (y * W + x) * C
 
-  // If the background isn't already transparent, flood-fill remove it from the edges.
-  if (data[idx(2, 2) + 3] > 20) {
+  if (data[idx(2, 2) + 3] > 20) { // remove non-transparent background (flood-fill from edges)
     const br = data[idx(2, 2)], bg = data[idx(2, 2) + 1], bb = data[idx(2, 2) + 2]
     const TOL = 42
     const isBg = (i) => { const dr = data[i] - br, dg = data[i + 1] - bg, db = data[i + 2] - bb; return dr * dr + dg * dg + db * db <= TOL * TOL }
@@ -32,21 +31,19 @@ async function loadFrames(file) {
     for (let p = 0; p < W * H; p++) if (mask[p]) data[p * C + 3] = 0
   }
 
-  // Find the separator between the two poses (emptiest column in the middle band).
+  // Separator between the two poses (emptiest column in the middle band).
   const colCount = new Int32Array(W)
   for (let x = 0; x < W; x++) { let c = 0; for (let y = 0; y < H; y++) if (data[idx(x, y) + 3] > ALPHA_MIN) c++; colCount[x] = c }
   let sep = Math.floor(W / 2), best = Infinity
   for (let x = Math.floor(W * 0.34); x <= Math.floor(W * 0.66); x++) if (colCount[x] < best) { best = colCount[x]; sep = x }
 
-  const bounds = [[0, sep], [sep, W]]
   const frames = []
-  for (const [x0, x1] of bounds) {
+  for (const [x0, x1] of [[0, sep], [sep, W]]) {
     let minX = x1, maxX = x0, minY = H, maxY = 0
     for (let x = x0; x < x1; x++) for (let y = 0; y < H; y++) {
       if (data[idx(x, y) + 3] > ALPHA_MIN) { if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y }
     }
     const fw = maxX - minX + 1, fh = maxY - minY + 1
-    // Anchor X = horizontal centroid of the bottom 22% (feet/legs) so the body stays planted.
     const botStart = maxY - Math.floor(fh * 0.22)
     let sumX = 0, cnt = 0
     for (let x = minX; x <= maxX; x++) for (let y = botStart; y <= maxY; y++) if (data[idx(x, y) + 3] > ALPHA_MIN) { sumX += x; cnt++ }
@@ -58,20 +55,26 @@ async function loadFrames(file) {
 }
 
 const sideData = {}
+for (const side in SIDES) sideData[side] = { idle: await loadFrames(SIDES[side].idle), punch: await loadFrames(SIDES[side].punch) }
+
+// Scale each side so its IDLE pose == TARGET_IDLE_H (matches both characters).
 for (const side in SIDES) {
-  sideData[side] = { idle: await loadFrames(SIDES[side].idle), punch: await loadFrames(SIDES[side].punch) }
+  const idleH = Math.max(...sideData[side].idle.frames.map((f) => f.h))
+  sideData[side].scale = TARGET_IDLE_H / idleH
 }
+// Shared cell height = tallest scaled frame across both sides (kicks are taller).
+let cellH = 0
+for (const side in SIDES) for (const kind of ['idle', 'punch']) for (const f of sideData[side][kind].frames) cellH = Math.max(cellH, f.h * sideData[side].scale)
+cellH = Math.round(cellH) + 10
 
 const meta = {}
 for (const side in SIDES) {
-  const all = [...sideData[side].idle.frames, ...sideData[side].punch.frames]
-  const scale = TARGET_H / Math.max(...all.map((f) => f.h))
-  let half = 0
-  for (const f of all) half = Math.max(half, f.anchorX, f.w - f.anchorX)
-  const cellW = Math.round(half * 2 * scale) + 12
-  const cellH = TARGET_H + 8
-
+  const scale = sideData[side].scale
   const flip = SIDES[side].flip
+  let half = 0
+  for (const kind of ['idle', 'punch']) for (const f of sideData[side][kind].frames) half = Math.max(half, f.anchorX, f.w - f.anchorX)
+  const cellW = Math.round(half * 2 * scale) + 12
+
   for (const kind of ['idle', 'punch']) {
     const { processed, frames } = sideData[side][kind]
     const comps = []
@@ -82,16 +85,13 @@ for (const side in SIDES) {
       if (flip) pipe = pipe.flop()
       const buf = await pipe.png().toBuffer()
       const ax = f.anchorX * scale
-      const anchorInScaled = flip ? sw - ax : ax // anchor mirrors after flop
-      const left = Math.round(i * cellW + cellW / 2 - anchorInScaled)
-      const top = cellH - sh - 4
-      comps.push({ input: buf, left, top })
+      const anchorInScaled = flip ? sw - ax : ax
+      comps.push({ input: buf, left: Math.round(i * cellW + cellW / 2 - anchorInScaled), top: cellH - sh - 4 })
     }
-    const outName = `${side}-${kind}-sheet.png`
-    await sharp({ create: { width: cellW * 2, height: cellH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite(comps).png().toFile(path.join(OUT, outName))
+    await sharp({ create: { width: cellW * 2, height: cellH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite(comps).png().toFile(path.join(OUT, `${side}-${kind}-sheet.png`))
     if (!meta[side]) meta[side] = {}
     meta[side][kind] = { w: cellW, h: cellH }
-    console.log(`${side} ${kind} -> ${outName} cell=${cellW}x${cellH}`)
+    console.log(`${side} ${kind} -> ${side}-${kind}-sheet.png cell=${cellW}x${cellH} (scale ${scale.toFixed(3)})`)
   }
 }
 
@@ -107,4 +107,4 @@ export const SPRITES = {
 }
 `
 fs.writeFileSync(path.join(OUT, 'sprites.js'), js)
-console.log('wrote src/assets/sprites.js')
+console.log('wrote src/assets/sprites.js  (cellH=' + cellH + ')')

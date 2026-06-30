@@ -1,8 +1,8 @@
 :root {
-  --ansem: #7c3aed;       /* ungu — TEAM ANSEM */
-  --ansem-d: #5b21b6;
-  --pumpfun: #22c55e;     /* hijau — TEAM PUMPFUN */
-  --pumpfun-d: #15803d;
+  --ansem: #22c55e;       /* green — ANSEM (now RIGHT side) */
+  --ansem-d: #15803d;
+  --pumpfun: #7c3aed;     /* purple — TJR (now LEFT side) */
+  --pumpfun-d: #5b21b6;
   --ink: #0b0e17;
   --gold: #ffd84d;
 }
@@ -37,8 +37,8 @@ body {
 
 .team-panel { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .tp-meta { display: flex; flex-direction: column; line-height: 1.12; }
-.team-panel.ansem .tp-meta { align-items: flex-start; }
-.team-panel.pumpfun .tp-meta { align-items: flex-end; }
+.team-panel.ansem .tp-meta { align-items: flex-end; }
+.team-panel.pumpfun .tp-meta { align-items: flex-start; }
 .tp-name { font-size: 24px; font-weight: 900; letter-spacing: 1.5px; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .6); }
 .tp-vol { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #aeb6c8; }
 .tp-score {
@@ -49,12 +49,12 @@ body {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 6px 18px rgba(0, 0, 0, .5);
 }
 .team-panel.ansem .tp-score {
-  background: linear-gradient(160deg, #a855f7, var(--ansem-d));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 22px rgba(124, 58, 237, .6);
+  background: linear-gradient(160deg, #4ade80, var(--ansem-d));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 22px rgba(34, 197, 94, .55);
 }
 .team-panel.pumpfun .tp-score {
-  background: linear-gradient(160deg, #4ade80, var(--pumpfun-d));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 22px rgba(34, 197, 94, .55);
+  background: linear-gradient(160deg, #a855f7, var(--pumpfun-d));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 22px rgba(124, 58, 237, .6);
 }
 
 .center-panel { display: flex; flex-direction: column; align-items: center; gap: 1px; }
@@ -69,9 +69,9 @@ body {
 /* ---------------- Arena ---------------- */
 .arena {
   position: relative; flex: 1; overflow: hidden;
-  background-image: url('./arena.png');
+  background-image: url('./assets/Arena2.PNG');
   background-size: cover;
-  background-position: center 42%;
+  background-position: center 38%;
   background-color: #1a1030;
 }
 
@@ -82,8 +82,8 @@ body {
   font-size: 40px; z-index: 3; filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .5));
 }
 .fighter { position: absolute; bottom: 8%; transform: translateX(-50%); }
-.fighter.ansem { left: 38%; }
-.fighter.pumpfun { left: 62%; }
+.fighter.ansem { left: 62%; }   /* ANSEM now on the right */
+.fighter.pumpfun { left: 38%; } /* TJR now on the left */
 .fighter-sprite {
   width: 100%; height: 100%;
   background-repeat: no-repeat; background-position: 0 0;
@@ -121,8 +121,8 @@ body {
   border-radius: 6px; overflow: hidden; box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
 }
 .hp-fill { height: 100%; border-radius: 5px; transition: width .35s ease-out; }
-.fighter.ansem .hp-fill { background: linear-gradient(90deg, #a855f7, var(--ansem)); }
-.fighter.pumpfun .hp-fill { background: linear-gradient(90deg, #4ade80, var(--pumpfun)); }
+.fighter.ansem .hp-fill { background: linear-gradient(90deg, #4ade80, var(--ansem)); }
+.fighter.pumpfun .hp-fill { background: linear-gradient(90deg, #a855f7, var(--pumpfun)); }
 .hp-fill.low { background: linear-gradient(90deg, #f87171, #ef4444) !important; animation: pulse .7s ease-in-out infinite; }
 
 /* ---------------- Token cards ---------------- */
@@ -131,8 +131,8 @@ body {
   background: rgba(5, 8, 16, .85); border: 1.5px solid #29324a; border-radius: 14px;
   padding: 10px 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, .5); backdrop-filter: blur(2px);
 }
-.token-card.ansem { left: 12px; border-color: var(--ansem); box-shadow: 0 0 18px rgba(124, 58, 237, .45); }
-.token-card.pumpfun { right: 12px; border-color: var(--pumpfun); box-shadow: 0 0 18px rgba(34, 197, 94, .45); }
+.token-card.ansem { right: 12px; border-color: var(--ansem); box-shadow: 0 0 18px rgba(34, 197, 94, .45); }
+.token-card.pumpfun { left: 12px; border-color: var(--pumpfun); box-shadow: 0 0 18px rgba(124, 58, 237, .45); }
 .tc-head { display: flex; align-items: center; gap: 8px; }
 .tc-img { width: 38px; height: 38px; border-radius: 10px; object-fit: cover; background: #1b2233; flex-shrink: 0; }
 .tc-img-ph { background: linear-gradient(135deg, #1b2233, #29324a); }
@@ -154,8 +154,8 @@ body {
 
 /* ---------------- Buy popups ---------------- */
 .popup-col { position: absolute; top: 228px; display: flex; flex-direction: column; gap: 8px; z-index: 4; }
-.popup-col.ansem { left: 4%; align-items: flex-start; }
-.popup-col.pumpfun { right: 4%; align-items: flex-end; }
+.popup-col.ansem { right: 4%; align-items: flex-end; }
+.popup-col.pumpfun { left: 4%; align-items: flex-start; }
 .buy-popup {
   background: rgba(5, 8, 16, .85); border: 2px solid #fff; border-radius: 12px;
   padding: 8px 14px; min-width: 150px; animation: popIn .3s ease-out;
@@ -176,13 +176,13 @@ body {
   background: rgba(5, 8, 16, .82); border: 1.5px solid #29324a; border-radius: 12px;
   padding: 8px 10px; box-shadow: 0 4px 16px rgba(0, 0, 0, .45);
 }
-.side-trades.ansem { left: 14px; border-color: var(--ansem); }
-.side-trades.pumpfun { right: 14px; border-color: var(--pumpfun); }
+.side-trades.ansem { right: 14px; border-color: var(--ansem); }
+.side-trades.pumpfun { left: 14px; border-color: var(--pumpfun); }
 .st-title { font-size: 11px; letter-spacing: 2px; text-align: center; color: var(--gold); font-weight: 800; margin-bottom: 6px; }
 .st-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; padding: 2px 0; font-family: monospace; }
 .st-amt { font-weight: 800; }
-.side-trades.ansem .st-amt { color: #b794f6; }
-.side-trades.pumpfun .st-amt { color: #86efac; }
+.side-trades.ansem .st-amt { color: #86efac; }
+.side-trades.pumpfun .st-amt { color: #b794f6; }
 .st-wallet { color: #7e889c; }
 .st-empty { font-size: 12px; text-align: center; color: #6b7280; }
 
