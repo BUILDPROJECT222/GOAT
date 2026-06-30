@@ -5,12 +5,13 @@ import pg from 'pg'
 const url = process.env.DATABASE_URL
 let pool = null
 if (url) {
-  const internal = url.includes('.railway.internal')
   pool = new pg.Pool({
     connectionString: url,
-    ssl: internal ? false : { rejectUnauthorized: false },
+    ssl: { rejectUnauthorized: false }, // Railway postgres-ssl
     max: 4,
+    connectionTimeoutMillis: 8000, // fail fast instead of hanging
   })
+  pool.on('error', (e) => console.warn('[store] pool error:', e.message))
 }
 
 export const storeEnabled = () => !!pool

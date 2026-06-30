@@ -42,12 +42,16 @@ wss.on('connection', (ws) => {
 })
 
 async function boot() {
+  // 1) Serve immediately — the app must be reachable even if the DB is slow/down.
+  server.listen(PORT, () => console.log(`[server] listening on ${PORT} (ws /ws)`))
+
+  // 2) Persistence (best-effort, before the feed so we restore prior state first).
   if (storeEnabled()) {
     try {
       await initStore()
       const snap = await loadState()
       if (snap) { engine.load(snap); console.log('[boot] restored state from Postgres') }
-      setInterval(() => saveState(engine.snapshot()), 10000) // periodic snapshot
+      setInterval(() => saveState(engine.snapshot()), 10000)
       console.log('[boot] Postgres persistence enabled')
     } catch (e) {
       console.warn('[boot] Postgres init failed — in-memory only:', e.message)
@@ -56,6 +60,7 @@ async function boot() {
     console.log('[boot] no DATABASE_URL — in-memory state only')
   }
 
+  // 3) Trade feed.
   if (HELIUS) {
     console.log('[boot] live feed (Helius)')
     createHeliusFeed({ apiKey: HELIUS, ansemMint: ANSEM_MINT, pumpfunMint: PUMPFUN_MINT, onTrade: engine.handleTrade, onStatus: engine.setStatus })
@@ -64,8 +69,6 @@ async function boot() {
     engine.setStatus('demo')
     createSimulatedFeed(engine.handleTrade)
   }
-
-  server.listen(PORT, () => console.log(`[server] listening on ${PORT} (ws /ws)`))
 }
 
 boot()
