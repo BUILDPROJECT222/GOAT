@@ -35,7 +35,12 @@ export function createEngine({ onTrade, onChange, onKO, save, intermission = 300
   }
   const otherSlot = (s) => (s === 'left' ? 'right' : 'left')
 
-  function setMatch(stage, leftId, rightId) {
+  function setMatch(stage, aId, bId) {
+    // Normalize sides so the lower-order fighter is always on the left (matches
+    // the baked arena art). Slot is display-only; win/routing use fighter ids.
+    const oa = fighter(aId)?.order ?? 0
+    const ob = fighter(bId)?.order ?? 0
+    const [leftId, rightId] = oa <= ob ? [aId, bId] : [bId, aId]
     state.stage = stage
     state.left = leftId
     state.right = rightId

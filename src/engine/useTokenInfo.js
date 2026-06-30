@@ -8,6 +8,7 @@ export function useTokenInfo(mint, intervalMs = 30000) {
 
   useEffect(() => {
     let alive = true
+    setData(null); setError(null) // clear stale info when the fighter (mint) changes
     const load = async () => {
       try {
         const d = await fetchTokenInfo(mint)

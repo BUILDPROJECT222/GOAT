@@ -2,10 +2,14 @@
 // (+ its art + put its id in the queue). The engine never hardcodes fighters.
 const env = (k, d) => process.env[k] || d
 
+// `order` = fixed display side (lower = left slot). A matchup can occur in either
+// orientation across cycles, but the arena art bakes banners to a side, so we
+// always render the lower-order fighter on the left. Derived from the art:
+// TJR(left) vs LUKE, LUKE(left) vs ANSEM, TJR(left) vs ANSEM  ->  tjr < luke < ansem.
 export const ROSTER = {
-  ansem: { id: 'ansem', name: 'ANSEM', mint: env('ANSEM_MINT', '9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump'), color: '#22c55e' },
-  tjr:   { id: 'tjr',   name: 'TJR',   mint: env('TJR_MINT',   '4U4U8oXwDyVXGeTffMXds4NAgBgLFwq3wNvTCRTSpump'), color: '#7c3aed' },
-  luke:  { id: 'luke',  name: 'LUKE',  mint: env('LUKE_MINT',  '86CFcbZBJAqGVnfgnLNcw3tPmfaTigAR2UxbUPYTpump'), color: '#f59e0b' },
+  tjr:   { id: 'tjr',   name: 'TJR',   mint: env('TJR_MINT',   '4U4U8oXwDyVXGeTffMXds4NAgBgLFwq3wNvTCRTSpump'), color: '#7c3aed', order: 0 },
+  luke:  { id: 'luke',  name: 'LUKE',  mint: env('LUKE_MINT',  '86CFcbZBJAqGVnfgnLNcw3tPmfaTigAR2UxbUPYTpump'), color: '#f59e0b', order: 1 },
+  ansem: { id: 'ansem', name: 'ANSEM', mint: env('ANSEM_MINT', '9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump'), color: '#22c55e', order: 2 },
 }
 
 // Initial gauntlet seeding (overridable via env).

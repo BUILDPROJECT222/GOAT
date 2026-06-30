@@ -31,7 +31,7 @@ console.log('\n— cycle 1: TJR wins R1, ANSEM defends final —')
 ko('tjr')
 eq('after R1 (tjr wins)', snap(), { stage: 'final', cycle: 1, left: 'tjr', right: 'ansem', goat: 'ansem', queue: ['luke'] })
 ko('ansem')
-eq('after Final (ansem defends)', snap(), { stage: 'round1', cycle: 2, left: 'luke', right: 'tjr', goat: 'ansem', queue: [] })
+eq('after Final (ansem defends)', snap(), { stage: 'round1', cycle: 2, left: 'tjr', right: 'luke', goat: 'ansem', queue: [] })
 
 console.log('\n— cycle 2: LUKE wins R1, then LUKE beats ANSEM → new GOAT —')
 ko('luke')

@@ -1,15 +1,16 @@
-// Per-match arena backgrounds. Key = `${leftId}-${rightId}` (orientation matters,
-// because the banners are baked to a side). Add a matchup = drop an image here +
-// map it. Unmapped matchups fall back to the default arena.
-// `?url` forces Vite to treat these as asset URLs (the uppercase .PNG extension
-// isn't in Vite's default assetsInclude, so a bare import would fail to parse).
-import arenaDefault from './Arena2.PNG?url'         // TJR (left) vs ANSEM (right)
-import arenaTjrLuke from './ArenaTJRvsLuke.jpg?url'  // TJR (left) vs LUKE (right)
+// Per-match arena backgrounds. The server normalizes sides (lower roster order
+// on the left: tjr < luke < ansem), so each matchup always renders in the
+// orientation its art was drawn for. Key = `${leftId}-${rightId}`.
+// `?url` forces Vite to accept the uppercase .PNG extension.
+import arenaTjrAnsem from './Arena2.PNG?url'           // TJR (left) vs ANSEM (right)
+import arenaTjrLuke from './ArenaTJRvsLuke.jpg?url'     // TJR (left) vs LUKE (right)
+import arenaLukeAnsem from './ansemvsluke-arena.PNG?url' // LUKE (left) vs ANSEM (right)
 
 const ARENAS = {
   'tjr-luke': arenaTjrLuke,
-  'tjr-ansem': arenaDefault,
+  'luke-ansem': arenaLukeAnsem,
+  'tjr-ansem': arenaTjrAnsem,
 }
 
 export const arenaFor = (leftId, rightId) =>
-  ARENAS[`${leftId}-${rightId}`] || arenaDefault
+  ARENAS[`${leftId}-${rightId}`] || arenaTjrAnsem
