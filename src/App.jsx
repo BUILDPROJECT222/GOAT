@@ -8,6 +8,7 @@ import TokenCard from './components/TokenCard'
 import BuyPopups from './components/BuyPopups'
 import SideTrades from './components/SideTrades'
 import InfoModal from './components/InfoModal'
+import { arenaFor } from './assets/arenas'
 
 const fmtClock = (s) => `${Math.floor(Math.max(0, s) / 60)}:${String(Math.max(0, s) % 60).padStart(2, '0')}`
 
@@ -44,12 +45,14 @@ export default function App() {
 
   const winner = g.matchWinner ? g[g.matchWinner] : null
   const isFinal = g.stage === 'final'
+  const dethrone = isFinal && winner && g.goat && winner.id !== g.goat.id
+  const arenaBg = g.left && g.right ? `url(${arenaFor(g.left.id, g.right.id)})` : undefined
 
   return (
     <div className="app">
       <TopBar left={g.left} right={g.right} scores={g.scores} stage={g.stage} cycle={g.cycle} goat={g.goat} queue={g.queue} />
 
-      <div className="arena" ref={arenaRef}>
+      <div className="arena" ref={arenaRef} style={{ backgroundImage: arenaBg }}>
         <Toolbar status={g.status} sound={sound} onToggleSound={toggleSound} onInfo={() => setInfo(true)} />
 
         {/* Field: the two fighters in the current match */}
@@ -78,7 +81,9 @@ export default function App() {
             <div className="ko-flash">K.O!</div>
             <div className="rb-title">{winner.name} WINS</div>
             <div className="rb-sub">
-              {isFinal ? `🐐 ${winner.name} is the GOAT` : `advances to the 🏆 FINAL`}
+              {isFinal
+                ? (dethrone ? `👑 ${winner.name} is the NEW GOAT!` : `🐐 ${winner.name} DEFENDS the GOAT`)
+                : 'advances to the 🏆 FINAL'}
             </div>
             {g.nextIn != null && (
               <div className="rb-sub">Next in {fmtClock(g.nextIn)}</div>
