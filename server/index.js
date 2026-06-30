@@ -37,6 +37,17 @@ const engine = createEngine({
 })
 setInterval(() => { if (stateDirty) { stateDirty = false; broadcast({ type: 'state', state: engine.publicState() }) } }, 200)
 
+// Admin: reset the whole match to a fresh start (HP 1000, scores/round/wins/KO/trades cleared).
+// Guard with ADMIN_KEY; call: POST /admin/reset?key=...  (or header x-admin-key). No-op if key unset.
+app.post('/admin/reset', (req, res) => {
+  const key = req.query.key || req.headers['x-admin-key']
+  if (!process.env.ADMIN_KEY || key !== process.env.ADMIN_KEY) return res.status(401).json({ error: 'unauthorized' })
+  engine.reset()
+  broadcast({ type: 'init', state: engine.snapshot() }) // full resync so trades clear on all viewers
+  console.log('[admin] state reset to fresh')
+  res.json({ ok: true, state: engine.publicState() })
+})
+
 wss.on('connection', (ws) => {
   ws.send(JSON.stringify({ type: 'init', state: engine.snapshot() }))
 })

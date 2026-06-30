@@ -55,6 +55,19 @@ export function createEngine({ onTrade, onChange, save } = {}) {
 
   function setStatus(s) { if (state.status !== s) { state.status = s; onChange && onChange() } }
 
+  // Full fresh start: HP back to max, scores/round/wins/KO cleared, trades wiped.
+  function reset() {
+    state.hp = { ansem: MAX_HP, pumpfun: MAX_HP }
+    state.scores = { ansem: 0, pumpfun: 0 }
+    state.round = { n: 1, winner: null }
+    state.wins = { ansem: 0, pumpfun: 0 }
+    state.koSide = null
+    state.nextIn = null
+    recentTrades = []
+    save && save(snapshot())
+    onChange && onChange()
+  }
+
   function load(snap) {
     if (!snap) return
     try {
@@ -77,5 +90,5 @@ export function createEngine({ onTrade, onChange, save } = {}) {
     }
   }, 1000)
 
-  return { handleTrade, setStatus, load, snapshot, publicState }
+  return { handleTrade, setStatus, load, snapshot, publicState, reset }
 }
