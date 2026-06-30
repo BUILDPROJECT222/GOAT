@@ -12,8 +12,6 @@ const DIST = path.join(__dirname, '..', 'dist')
 const PORT = process.env.PORT || 3001
 
 const HELIUS = process.env.HELIUS_API_KEY || process.env.VITE_HELIUS_API_KEY || ''
-const ANSEM_MINT = process.env.VITE_ANSEM_MINT || '9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump'
-const PUMPFUN_MINT = process.env.VITE_PUMPFUN_MINT || '4U4U8oXwDyVXGeTffMXds4NAgBgLFwq3wNvTCRTSpump'
 
 const app = express()
 app.use(express.static(DIST))
@@ -34,6 +32,10 @@ const engine = createEngine({
   onTrade: (trade) => broadcast({ type: 'trade', trade }),
   onChange: () => { stateDirty = true },
   save: (snap) => saveState(snap),
+  onKO: (ko) => {
+    // Every KO is a reward event. Airdrop wiring lands in a later phase; log for now.
+    console.log(`[KO] ${ko.stage} cycle ${ko.cycle}: ${ko.winnerName} wins (${ko.winnerMint})`)
+  },
 })
 setInterval(() => { if (stateDirty) { stateDirty = false; broadcast({ type: 'state', state: engine.publicState() }) } }, 200)
 
@@ -71,14 +73,14 @@ async function boot() {
     console.log('[boot] no DATABASE_URL — in-memory state only')
   }
 
-  // 3) Trade feed.
+  // 3) Trade feed — watches only the two mints in the current match.
   if (HELIUS) {
     console.log('[boot] live feed (Helius)')
-    createHeliusFeed({ apiKey: HELIUS, ansemMint: ANSEM_MINT, pumpfunMint: PUMPFUN_MINT, onTrade: engine.handleTrade, onStatus: engine.setStatus })
+    createHeliusFeed({ apiKey: HELIUS, getMints: engine.activeMints, onTrade: engine.handleTrade, onStatus: engine.setStatus })
   } else {
     console.log('[boot] no Helius key — simulated feed')
     engine.setStatus('demo')
-    createSimulatedFeed(engine.handleTrade)
+    createSimulatedFeed(engine.handleTrade, engine.activeMints)
   }
 }
 
