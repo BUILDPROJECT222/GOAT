@@ -34,8 +34,16 @@ const engine = createEngine({
   save: (snap) => saveState(snap),
   intermission: Number(process.env.INTERMISSION) || 300,
   onKO: (ko) => {
-    // Every KO is a reward event. Airdrop wiring lands in a later phase; log for now.
     console.log(`[KO] ${ko.stage} cycle ${ko.cycle}: ${ko.winnerName} wins (${ko.winnerMint})`)
+    // Notify the airdrop app (best-effort). It records a pending airdrop; the
+    // operator executes manually. No funds move from this call.
+    const url = process.env.AIRDROP_WEBHOOK_URL
+    if (url) {
+      fetch(url, {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ winner: ko.winnerId, winnerName: ko.winnerName, winnerMint: ko.winnerMint, stage: ko.stage, cycle: ko.cycle, secret: process.env.AIRDROP_WEBHOOK_SECRET || '' }),
+      }).catch((e) => console.warn('[ko-webhook]', e.message))
+    }
   },
 })
 setInterval(() => { if (stateDirty) { stateDirty = false; broadcast({ type: 'state', state: engine.publicState() }) } }, 200)
