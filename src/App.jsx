@@ -50,11 +50,10 @@ export default function App() {
       <div className="arena" ref={arenaRef}>
         <Toolbar status={g.status} sound={sound} onToggleSound={toggleSound} onInfo={() => setInfo(true)} />
 
-        {/* Field: fighters fixed in place, ball between them */}
+        {/* Field: fighters fixed in place */}
         <div className="ground">
           <Fighter side="ansem" score={g.scores.ansem} hp={g.hp.ansem} maxHp={g.maxHp}
             damages={g.damages} ko={g.koSide === 'ansem'} punchSeq={g.punch.ansem} />
-          <div className="ball">⚽</div>
           <Fighter side="pumpfun" score={g.scores.pumpfun} hp={g.hp.pumpfun} maxHp={g.maxHp}
             damages={g.damages} ko={g.koSide === 'pumpfun'} punchSeq={g.punch.pumpfun} />
         </div>
