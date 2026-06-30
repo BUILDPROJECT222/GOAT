@@ -10,7 +10,10 @@
 //     with 3 fighters and scales to N via the queue.
 import { fighter, mintToId, INITIAL_GOAT, INITIAL_QUEUE } from './roster.js'
 
-const MAX_HP = Number(process.env.MAX_HP) || 1000 // override for quick local testing
+// Stage-specific max HP: Round 1 is a shorter bout (500); the Final is full (1000).
+const HP_FINAL = Number(process.env.MAX_HP) || 1000
+const HP_ROUND1 = Number(process.env.MAX_HP_ROUND1) || 500
+const maxHpFor = (stage) => (stage === 'final' ? HP_FINAL : HP_ROUND1)
 
 export function createEngine({ onTrade, onChange, onKO, save, intermission = 300 } = {}) {
   const INTERMISSION = intermission
@@ -18,14 +21,14 @@ export function createEngine({ onTrade, onChange, onKO, save, intermission = 300
     stage: 'round1',          // 'round1' | 'final'
     cycle: 1,
     left: null, right: null,  // fighter ids in the current match (slots)
-    hp: { left: MAX_HP, right: MAX_HP },
+    hp: { left: HP_ROUND1, right: HP_ROUND1 },
     scores: { left: 0, right: 0 },
     goat: INITIAL_GOAT,
     queue: [...INITIAL_QUEUE],
     matchWinner: null,        // 'left' | 'right' once the match is decided (KO)
     nextIn: null,             // intermission countdown (s)
     status: 'connecting',
-    maxHp: MAX_HP,
+    maxHp: HP_ROUND1,
   }
   let recentTrades = []       // newest first, max 40
 
@@ -41,10 +44,12 @@ export function createEngine({ onTrade, onChange, onKO, save, intermission = 300
     const oa = fighter(aId)?.order ?? 0
     const ob = fighter(bId)?.order ?? 0
     const [leftId, rightId] = oa <= ob ? [aId, bId] : [bId, aId]
+    const max = maxHpFor(stage)
     state.stage = stage
     state.left = leftId
     state.right = rightId
-    state.hp = { left: MAX_HP, right: MAX_HP }
+    state.maxHp = max
+    state.hp = { left: max, right: max }
     state.scores = { left: 0, right: 0 }
     state.matchWinner = null
     state.nextIn = null
@@ -74,7 +79,7 @@ export function createEngine({ onTrade, onChange, onKO, save, intermission = 300
     hp: state.hp, scores: state.scores,
     goat: fInfo(state.goat), queue: state.queue.map(fInfo),
     matchWinner: state.matchWinner, nextIn: state.nextIn,
-    status: state.status, maxHp: MAX_HP,
+    status: state.status, maxHp: state.maxHp,
   })
   const snapshot = () => ({
     ...publicState(),
