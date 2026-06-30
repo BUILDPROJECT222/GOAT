@@ -81,7 +81,7 @@ body {
   position: absolute; bottom: 9%; left: 50%; transform: translateX(-50%);
   font-size: 40px; z-index: 3; filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .5));
 }
-.fighter { position: absolute; bottom: 8%; transform: translateX(-50%); }
+.fighter { position: absolute; bottom: 8%; transform: translateX(-50%); transform-origin: bottom center; }
 .fighter.ansem { left: 62%; }   /* ANSEM now on the right */
 .fighter.pumpfun { left: 38%; } /* TJR now on the left */
 .fighter-sprite {
@@ -311,3 +311,93 @@ body {
 /* ---------------- Keyframes ---------------- */
 @keyframes popIn { from { opacity: 0; transform: translateY(-10px) scale(.8); } to { opacity: 1; } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ============================================================
+   Responsive — phones & short/landscape viewports
+   The arena is built for wide screens; on phones the corner HUD
+   panels and the (wide) fighter sprites overlap, so we scale the
+   fighters down, spread them apart, and compact every panel.
+   ============================================================ */
+@media (max-width: 640px) {
+  /* Scoreboard */
+  .topbar { padding: 6px 8px; min-height: 50px; }
+  .team-panel { gap: 7px; }
+  .tp-name { font-size: 15px; letter-spacing: .5px; }
+  .tp-vol { font-size: 10px; }
+  .tp-score { min-width: 32px; height: 32px; padding: 0 6px; font-size: 17px; border-radius: 9px; }
+  .cp-live { font-size: 8px; letter-spacing: 1.5px; gap: 4px; }
+  .cp-dot { width: 6px; height: 6px; }
+  .cp-timer { font-size: 19px; letter-spacing: .3px; }
+  .cp-round { font-size: 8px; letter-spacing: 1px; }
+
+  /* Floating toolbar — wrap + shrink */
+  .toolbar { top: 8px; gap: 6px; max-width: 96%; flex-wrap: wrap; justify-content: center; }
+  .live-pill { padding: 5px 9px; font-size: 10px; letter-spacing: 1px; gap: 5px; }
+  .tb-actions { gap: 6px; }
+  .tb-btn { padding: 6px 10px; font-size: 11px; }
+  .tb-icon { padding: 6px 9px; font-size: 13px; }
+
+  /* Fighters — scale down + spread so they don't overlap */
+  .fighter.pumpfun { left: 28%; transform: translateX(-50%) scale(.55); }
+  .fighter.ansem   { left: 72%; transform: translateX(-50%) scale(.55); }
+  .fighter-hud { width: 150px; }
+
+  /* Token cards — compact, top corners (below the wrapped toolbar) */
+  .token-card { width: 44vw; max-width: 196px; top: 76px; padding: 7px 8px; border-radius: 11px; }
+  .token-card.ansem { right: 6px; }
+  .token-card.pumpfun { left: 6px; }
+  .tc-img { width: 30px; height: 30px; border-radius: 8px; }
+  .tc-name { font-size: 11.5px; }
+  .tc-sym { font-size: 10px; }
+  .tc-dex { display: none; }
+  .tc-mc { margin: 5px 0 4px; }
+  .tc-mc-label { font-size: 8px; letter-spacing: .5px; }
+  .tc-mc-val { font-size: 15px; }
+  .tc-grid { gap: 1px 8px; }
+  .tc-grid > div { font-size: 9.5px; }
+  .tc-ca { font-size: 9px; margin-top: 5px; }
+
+  /* Buy popups — smaller, mid-height */
+  .popup-col { top: 40%; gap: 6px; }
+  .popup-col.ansem { right: 2%; }
+  .popup-col.pumpfun { left: 2%; }
+  .buy-popup { min-width: 108px; padding: 6px 10px; border-radius: 10px; }
+  .bp-top { font-size: 10px; }
+  .bp-amt { font-size: 17px; }
+  .bp-wallet { font-size: 9px; }
+
+  /* Live trades — compact, fewer rows, bottom corners */
+  .side-trades { width: 41vw; max-width: 184px; bottom: 8px; padding: 6px 8px; border-radius: 10px; }
+  .side-trades.ansem { right: 8px; }
+  .side-trades.pumpfun { left: 8px; }
+  .st-title { font-size: 9px; letter-spacing: 1px; margin-bottom: 4px; }
+  .st-row { font-size: 10.5px; padding: 1px 0; }
+  .st-row:nth-child(n+6) { display: none; } /* keep ~4 rows so fighters stay visible */
+  .st-empty { font-size: 10px; }
+
+  /* Round/KO banner + win overlay */
+  .round-banner { top: 46px; padding: 8px 16px; border-radius: 12px; }
+  .ko-flash { font-size: 26px; letter-spacing: 2px; }
+  .rb-title { font-size: 18px; }
+  .rb-sub { font-size: 12px; }
+  .win-card { padding: 20px 26px; }
+  .win-title { font-size: 30px; }
+
+  .dmg-float { font-size: 19px; top: -52px; }
+}
+
+/* Extra-tight phones */
+@media (max-width: 400px) {
+  .fighter.pumpfun { left: 25%; transform: translateX(-50%) scale(.46); }
+  .fighter.ansem   { left: 75%; transform: translateX(-50%) scale(.46); }
+  .token-card { top: 72px; }
+  .tp-name { font-size: 13px; }
+  .cp-timer { font-size: 17px; }
+}
+
+/* Short / landscape viewports — keep fighters inside the arena height */
+@media (max-height: 460px) {
+  .fighter.pumpfun { transform: translateX(-50%) scale(.42); }
+  .fighter.ansem   { transform: translateX(-50%) scale(.42); }
+  .token-card { top: 44px; }
+}

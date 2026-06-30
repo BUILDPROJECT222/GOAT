@@ -11,3 +11,6 @@ dist
 
 # logs
 *.log
+
+# Separate standalone app with its own repo (BUILDPROJECT222/airdrop)
+/airdrop/
